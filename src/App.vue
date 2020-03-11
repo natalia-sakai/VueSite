@@ -1,11 +1,8 @@
 <template>
   <div id="app">
-    <app-header></app-header>
-    <!--  <app-navbar v-if="currentUser"></app-navbar> -->
-    <div class="body">
-      <br />
-      <router-view></router-view>
-    </div>
+    <app-header v-if="!currentUser"></app-header>
+    <app-navbar v-if="currentUser"></app-navbar>
+    <router-view></router-view>
   </div>
 </template>
 
@@ -14,6 +11,7 @@ import header from "./components/Header.vue";
 import navbar from "./components/Navbar.vue";
 import firebase from "firebase";
 import { mapState } from "vuex";
+const fb = require('./firebaseConfig.js')
 export default {
   components: {
     "app-header": header,
@@ -21,11 +19,15 @@ export default {
   },
   data() {
     return {
-      currentUser: firebase.auth().currentUser
+      currentUser: false
     }
   },
-  computed: {
-    ...mapState(['{currentUser: state => state.auth.currentUser}'])
+  created(){
+    firebase.auth().onAuthStateChanged(user => {
+      if(user){
+        this.currentUser = true;
+      }
+    })
   }
 };
 </script>

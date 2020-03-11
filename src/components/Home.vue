@@ -1,57 +1,51 @@
 <template>
   <div class="container">
-    <app-newMessage></app-newMessage>
-    <div v-for="post in posts" :key="post">
+    <br />
+    <div class="box">
+      <article class="media">
+        <div class="media-content">
+          <div class="content">
+            <strong>{{this.user.displayName}}</strong>
+            <br />
+            <br />
+            <form @submit.prevent="submit" id="message">
+              <textarea class="textarea" name="message" v-model="newPost.message"></textarea>
+              <br />
+              <button class="button" type="submit">Post</button>
+            </form>
+          </div>
+        </div>
+      </article>
+    </div>
+    <br />
+    <div v-for="post in postsID" :key="post">
       <app-post :postId="post"></app-post>
-      <br>
     </div>
   </div>
 </template>
 
 <script>
-const fb = require("../firebaseConfig.js");
 import firebase from "firebase";
-import newMessage from "@/components/newMessage.vue";
+import moment from "moment";
 import Post from "@/components/Post.vue";
+import { mapState } from "vuex";
 export default {
-  //props: ["id"],
   components: {
-    "app-newMessage": newMessage,
     "app-post": Post
   },
   data() {
     return {
       user: firebase.auth().currentUser,
-      users: [],
-      posts: []
+      postsID: [],
+      newPost: {
+        userID: "",
+        username: "",
+        message: "",
+        time: "",
+      },
     };
   },
   created() {
-    //HTTP para os usuarios
-    this.$http
-      .get("https://vue-firebase-dbf74.firebaseio.com/users.json")
-      .then(function(data) {
-        return data.json();
-      })
-      .then(function(data) {
-        //cria um array com todos os users
-        var userArray = [];
-        for (let key in data) {
-          data[key].id = key;
-          userArray.push(data[key]);
-          /*
-          //verifica o user logado
-          if (data[key].id == this.id) {
-            this.user = data[key];
-          }
-          */
-        }
-        this.users = userArray;
-      })
-      .catch(error => {
-        console.log(error);
-      });
-
     //HTTP para os Posts
     this.$http
       .get("https://vue-firebase-dbf74.firebaseio.com/posts.json")
@@ -63,11 +57,40 @@ export default {
         for (let key in data) {
           IDArray.push(key);
         }
-        this.posts = IDArray;
+        this.postsID = IDArray;
       })
       .catch(error => {
         console.log(error);
       });
+  },
+  methods: {
+    submit() {
+      this.newPost.userID = this.user.uid;
+      this.newPost.username = this.user.displayName;
+      this.newPost.time = moment().format("lll");
+      
+      this.$http.post("https://vue-firebase-dbf74.firebaseio.com/posts.json", this.newPost)
+      .then(function(data) {
+        return data.json();
+      })
+      .then(function(data){
+
+        var interaction = {
+          postID: data.name,
+          like: 0,
+          retweet: 0,
+        }
+
+        this.postsID.push(data.name);
+        this.$http.post("https://vue-firebase-dbf74.firebaseio.com/interactions.json", interaction)
+        alert("Postado");
+        this.newPost.message = "";
+      })
+      .catch(error => {
+        console.log(error);
+      });
+      
+    }
   }
 };
 </script>

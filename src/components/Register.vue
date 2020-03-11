@@ -17,29 +17,28 @@
                 <div class="control">
                   <input class="input is-medium" type="text" name="name" v-model="user.name" />
                 </div>
+                <p class="help is-danger" v-if="!$v.user.name.required">Required</p>
               </div>
               <div class="field">
                 <label class="label">Email</label>
                 <div class="control">
                   <input class="input is-medium" type="text" name="email" v-model="user.email" />
                 </div>
+                <p class="help is-danger" v-if="!$v.user.email.required">Required</p>
               </div>
               <div class="field">
                 <label class="label">Password</label>
                 <div class="control">
-                  <input
-                    class="input is-medium"
-                    type="password"
-                    name="password"
-                    v-model="user.password"
-                  />
+                  <input class="input is-medium" type="password" name="password" v-model="user.password"/>
                 </div>
+                <p class="help is-danger" v-if="!$v.user.password.required">Required</p>
               </div>
               <div class="control">
                 <button
                   type="submit"
                   class="button is-success is-fullwidth has-text-weight-medium is-medium"
-                >Sign Up</button>
+                  :disabled="!$v.user.name.required || !$v.user.email.required || !$v.user.password.required">
+                  Sign Up</button>
               </div>
             </form>
           </div>
@@ -50,7 +49,11 @@
 </template>
 
 <script>
-const fb = require('../firebaseConfig.js')
+import Vue from 'vue'
+import firebase from 'firebase'
+import Vuelidate from 'vuelidate'
+import { required, minLength, between } from 'vuelidate/lib/validators'
+Vue.use(Vuelidate)
 export default {
   data() {
     return {
@@ -58,25 +61,30 @@ export default {
         name: '',
         email: '',
         password: '',
-        id: null
       }
     };
   },
   methods: {
-      submit(){
-        firebase.auth().createUserWithEmailAndPassword(this.user.email, this.user.password)
-        .then(data => {
-          this.$store.commit('setCurrentUser', data)
-          
-          data.user.updateProfile({
-            displayName: this.user.name
-          })
-          .then(()=>{this.$router.push({name: 'Home'})});
+    submit(){
+      firebase.auth().createUserWithEmailAndPassword(this.user.email, this.user.password)
+      .then(data => {        
+        data.user.updateProfile({
+          displayName: this.user.name
         })
-        .catch(error => {
-          console.log(error)
-        })
-      }
+        .then(()=>{this.$router.push({name: 'Home'})});
+      })
+      .catch(error => {
+        console.log(error)
+      })
+    },
+  },
+  validations:{
+    user:{
+      name: {required},
+      email: {required},
+      password: {required},
     }
-  };
+  }
+};
+
 </script>

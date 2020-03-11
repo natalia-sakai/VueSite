@@ -12,27 +12,3 @@ var firebaseConfig = {
   
   firebase.initializeApp(firebaseConfig);
   
-  // firebase utils
-const db = firebase.firestore()
-const auth = firebase.auth()
-const currentUser = auth.currentUser
-
-// date issue fix according to firebase
-const settings = {
-    timestampsInSnapshots: true
-}
-db.settings(settings)
-
-// firebase collections
-const usersCollection = db.collection('users')
-const postsCollection = db.collection('posts')
-const likesCollection = db.collection('likes')
-
-export default{
-    db,
-    auth,
-    currentUser,
-    usersCollection,
-    postsCollection,
-    likesCollection
-}

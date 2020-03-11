@@ -20,7 +20,6 @@
 <script>
 import firebase from 'firebase'
 import moment from 'moment'
-const fb = require('../firebaseConfig.js')
 export default {
     data(){
         return{
@@ -35,7 +34,7 @@ export default {
     },
     methods:{
         submit(){
-
+            
         }
     }
 }
