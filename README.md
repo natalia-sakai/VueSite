@@ -1,6 +1,6 @@
-# vue-firebase
+# vue-firebase site
 
-> A Vue.js project
+> A Vue.js project for study
 
 ## Build Setup
 
